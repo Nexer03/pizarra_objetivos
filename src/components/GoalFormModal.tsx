@@ -109,7 +109,7 @@ export function GoalFormModal({ open, initialDraft, onClose, onSave }: GoalFormM
       return;
     }
 
-    if (milestones.length === 0) {
+    if (draft.trackingMode === 'actions' && milestones.length === 0) {
       setError('Añade al menos un hito.');
       return;
     }
@@ -156,7 +156,10 @@ export function GoalFormModal({ open, initialDraft, onClose, onSave }: GoalFormM
                 type="text"
                 className="input"
                 value={draft.title}
-                onChange={(event) => setDraft((current) => ({ ...current, title: event.currentTarget.value }))}
+                onChange={(event) => {
+                  const value = event.currentTarget.value;
+                  setDraft((current) => ({ ...current, title: value }));
+                }}
                 placeholder="Ej. Validar mi oferta de desarrollo"
               />
             </label>
@@ -167,8 +170,26 @@ export function GoalFormModal({ open, initialDraft, onClose, onSave }: GoalFormM
                 type="date"
                 className="input"
                 value={draft.deadline}
-                onChange={(event) => setDraft((current) => ({ ...current, deadline: event.currentTarget.value }))}
+                onChange={(event) => {
+                  const value = event.currentTarget.value;
+                  setDraft((current) => ({ ...current, deadline: value }));
+                }}
               />
+            </label>
+
+            <label className="field">
+              <span className="field__label">Cómo medir esta meta</span>
+              <select
+                className="input"
+                value={draft.trackingMode}
+                onChange={(event) => {
+                  const value = event.currentTarget.value === 'time' ? 'time' : 'actions';
+                  setDraft((current) => ({ ...current, trackingMode: value }));
+                }}
+              >
+                <option value="actions">Por acciones y hitos</option>
+                <option value="time">Por tiempo y fecha límite</option>
+              </select>
             </label>
           </div>
 
@@ -178,7 +199,10 @@ export function GoalFormModal({ open, initialDraft, onClose, onSave }: GoalFormM
               className="textarea"
               rows={4}
               value={draft.description}
-              onChange={(event) => setDraft((current) => ({ ...current, description: event.currentTarget.value }))}
+              onChange={(event) => {
+                const value = event.currentTarget.value;
+                setDraft((current) => ({ ...current, description: value }));
+              }}
               placeholder="Describe qué quieres lograr y por qué importa."
             />
           </label>
@@ -187,7 +211,11 @@ export function GoalFormModal({ open, initialDraft, onClose, onSave }: GoalFormM
             <div className="form-block__header">
               <div>
                 <span className="field__label">Hitos</span>
-                <p className="form-block__hint">Marca el progreso desde la tarjeta o la vista de esta semana.</p>
+                <p className="form-block__hint">
+                  {draft.trackingMode === 'time'
+                    ? 'Opcional: añade acciones que acompañen el recorrido de esta meta.'
+                    : 'Marca el progreso desde la tarjeta o la vista de esta semana.'}
+                </p>
               </div>
               <button type="button" className="button button--secondary" onClick={addMilestone}>
                 Añadir hito
@@ -202,12 +230,13 @@ export function GoalFormModal({ open, initialDraft, onClose, onSave }: GoalFormM
                     type="text"
                     className="input"
                     value={milestone.title}
-                    onChange={(event) =>
+                    onChange={(event) => {
+                      const value = event.currentTarget.value;
                       updateMilestone(milestone.id, (current) => ({
                         ...current,
-                        title: event.currentTarget.value,
-                      }))
-                    }
+                        title: value,
+                      }));
+                    }}
                     placeholder="Ej. Crear una demo"
                   />
                   <button

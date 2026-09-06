@@ -73,13 +73,19 @@ export function formatMissionTimePercent(percent: number): string {
 export function getGoalMetrics(goal: Goal): GoalMetrics {
   const totalMilestones = goal.milestones.length;
   const completedMilestones = goal.milestones.filter((milestone) => milestone.completed).length;
-  const progressPercent = totalMilestones === 0 ? 0 : Math.round((completedMilestones / totalMilestones) * 100);
+  const start = parseLocalDate(goal.createdAt);
+  const deadline = parseLocalDate(goal.deadline);
+  const totalDays = Math.max(1, differenceInDays(deadline, start));
+  const elapsedDays = clamp(differenceInDays(new Date(), start), 0, totalDays);
+  const progressPercent = goal.trackingMode === 'time'
+    ? Math.round((elapsedDays / totalDays) * 100)
+    : totalMilestones === 0 ? 0 : Math.round((completedMilestones / totalMilestones) * 100);
 
   let status: GoalStatus = 'pending';
 
-  if (totalMilestones > 0 && completedMilestones === totalMilestones) {
+  if (goal.completed || (goal.trackingMode === 'actions' && totalMilestones > 0 && completedMilestones === totalMilestones)) {
     status = 'completed';
-  } else if (completedMilestones > 0) {
+  } else if (completedMilestones > 0 || progressPercent > 0) {
     status = 'in_progress';
   }
 

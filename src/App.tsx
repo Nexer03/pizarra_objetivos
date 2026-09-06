@@ -6,6 +6,8 @@ import { MissionHero } from './components/MissionHero';
 import { SectionCard } from './components/SectionCard';
 import { SettingsPanel } from './components/SettingsPanel';
 import { UpcomingActions } from './components/UpcomingActions';
+import { ReportsPanel } from './components/ReportsPanel';
+import { AuthScreen } from './components/AuthScreen';
 import { createBlankGoalDraft, createDefaultAppData, createDraftFromGoal, DEFAULT_APP_NAME } from './data/defaults';
 import {
   createId,
@@ -16,9 +18,11 @@ import {
   sortGoals,
 } from './data/domain';
 import { normalizeImportedAppData } from './data/importExport';
-import { localStorageRepository } from './data/repository';
+import { createSupabaseRepository } from './data/supabaseRepository';
+import { supabase } from './data/supabase';
 import { normalizeMilestoneDrafts } from './data/defaults';
-import type { AppData, Goal, GoalDraft } from './data/types';
+import type { ActivityEvent, AppData, Goal, GoalDraft } from './data/types';
+import type { User } from '@supabase/supabase-js';
 
 type Notice = {
   type: 'success' | 'error' | 'info';
@@ -34,6 +38,8 @@ function buildGoalFromDraft(draft: GoalDraft, existingGoal: Goal | null): Goal {
     title: draft.title.trim(),
     description: draft.description.trim(),
     deadline: draft.deadline,
+    trackingMode: draft.trackingMode,
+    completed: existingGoal?.completed ?? false,
     createdAt: existingGoal?.createdAt ?? nowIso,
     updatedAt: nowIso,
     milestones: normalizeMilestoneDrafts(draft.milestones),
@@ -46,6 +52,7 @@ function updateGoalCompletion(goal: Goal, milestoneId: string, nextCompleted: bo
   return {
     ...goal,
     updatedAt: nowIso,
+    completed: goal.completed,
     milestones: goal.milestones.map((milestone) => {
       if (milestone.id !== milestoneId) {
         return milestone;
@@ -60,12 +67,28 @@ function updateGoalCompletion(goal: Goal, milestoneId: string, nextCompleted: bo
   };
 }
 
+function createActivity(
+  type: ActivityEvent['type'],
+  goal: Goal,
+  milestoneTitle?: string,
+): ActivityEvent {
+  return {
+    id: createId(),
+    type,
+    goalId: goal.id,
+    goalTitle: goal.title,
+    milestoneTitle,
+    createdAt: new Date().toISOString(),
+  };
+}
+
 function completeGoal(goal: Goal): Goal {
   const nowIso = new Date().toISOString();
 
   return {
     ...goal,
     updatedAt: nowIso,
+    completed: true,
     milestones: goal.milestones.map((milestone) =>
       milestone.completed
         ? milestone
@@ -94,6 +117,8 @@ function createDownloadFile(data: AppData) {
 }
 
 export default function App() {
+  const [user, setUser] = useState<User | null>(null);
+  const [isAuthLoading, setIsAuthLoading] = useState(true);
   const [data, setData] = useState<AppData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [editorDraft, setEditorDraft] = useState<GoalDraft | null>(null);
@@ -103,40 +128,44 @@ export default function App() {
   useEffect(() => {
     let active = true;
 
-    void localStorageRepository
-      .load()
-      .then((stored) => {
-        if (!active) {
-          return;
-        }
+    void supabase.auth.getSession().then(({ data: sessionData }) => {
+      if (active) setUser(sessionData.session?.user ?? null);
+    }).finally(() => {
+      if (active) setIsAuthLoading(false);
+    });
 
-        setData(stored ?? createDefaultAppData());
-      })
-      .catch(() => {
-        if (!active) {
-          return;
-        }
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
 
-        setData(createDefaultAppData());
-      })
-      .finally(() => {
-        if (active) {
-          setIsLoading(false);
-        }
-      });
-
-    return () => {
-      active = false;
-    };
+    return () => { active = false; listener.subscription.unsubscribe(); };
   }, []);
 
   useEffect(() => {
-    if (!data || isLoading) {
+    if (!user) {
+      setData(null);
+      setIsLoading(false);
       return;
     }
 
-    void localStorageRepository.save(data);
-  }, [data, isLoading]);
+    let active = true;
+    setIsLoading(true);
+    void createSupabaseRepository(user.id).load().then((stored) => {
+      if (active) setData(stored ?? createDefaultAppData());
+    }).catch(() => {
+      if (active) setData(createDefaultAppData());
+    }).finally(() => {
+      if (active) setIsLoading(false);
+    });
+    return () => { active = false; };
+  }, [user]);
+
+  useEffect(() => {
+    if (!data || isLoading || !user) return;
+    void createSupabaseRepository(user.id).save(data).catch(() => {
+      showNotice('error', 'No se pudo guardar la información en Supabase.');
+    });
+  }, [data, isLoading, user]);
 
   useEffect(() => {
     if (!data) {
@@ -195,12 +224,14 @@ export default function App() {
         current.primaryGoalId && goals.some((goal) => goal.id === current.primaryGoalId)
           ? current.primaryGoalId
           : nextGoal.id;
+      const activity = createActivity(existingGoal ? 'goal_updated' : 'goal_created', nextGoal);
 
       return {
         ...current,
         updatedAt: nowIso,
         primaryGoalId,
         goals,
+        activityLog: [activity, ...current.activityLog],
       };
     });
 
@@ -291,12 +322,19 @@ export default function App() {
         return current;
       }
 
+      const goal = current.goals.find((entry) => entry.id === goalId);
+      const milestone = goal?.milestones.find((entry) => entry.id === milestoneId);
+      const activity = goal && milestone
+        ? createActivity(nextCompleted ? 'milestone_completed' : 'milestone_reopened', goal, milestone.title)
+        : null;
+
       return {
         ...current,
         updatedAt: new Date().toISOString(),
         goals: current.goals.map((goal) =>
           goal.id === goalId ? updateGoalCompletion(goal, milestoneId, nextCompleted) : goal,
         ),
+        activityLog: activity ? [activity, ...current.activityLog] : current.activityLog,
       };
     });
   };
@@ -364,16 +402,26 @@ export default function App() {
   };
 
   const handleReset = () => {
-    const confirmed = window.confirm('Esto borrará los datos locales de Pizarra y volverá al estado inicial. ¿Continuar?');
+    const confirmed = window.confirm('Esto borrará tus datos de Pizarra en Supabase y volverá al estado inicial. ¿Continuar?');
     if (!confirmed) {
       return;
     }
 
-    void localStorageRepository.clear();
-    setData(createDefaultAppData());
+    if (!user) return;
+    void createSupabaseRepository(user.id).clear().then(() => {
+      setData(createDefaultAppData());
+    }).catch(() => showNotice('error', 'No se pudieron borrar los datos.'));
     setEditorDraft(null);
     showNotice('success', 'Datos restablecidos.');
   };
+
+  if (isAuthLoading) {
+    return <div className="app-shell"><div className="loading-state"><div className="loading-state__content"><h1>Conectando...</h1></div></div></div>;
+  }
+
+  if (!user) {
+    return <AuthScreen />;
+  }
 
   if (isLoading || !data) {
     return (
@@ -408,12 +456,13 @@ export default function App() {
           <a href="#objetivos">Objetivos</a>
           <a href="#semana">Esta semana</a>
           <a href="#calendario">Calendario</a>
+          <a href="#reportes">Reportes</a>
           <a href="#configuracion">Configuración</a>
         </nav>
 
         <div className="topbar__actions">
           <button type="button" className="button button--primary" onClick={handleCreateGoal}>
-            Nuevo objetivo
+            Crear objetivo
           </button>
         </div>
       </header>
@@ -426,10 +475,9 @@ export default function App() {
 
       <main className="dashboard">
         <div id="inicio">
-          <MissionHero
+        <MissionHero
           goal={primaryGoal}
           snapshot={missionSnapshot}
-          onCreate={handleCreateGoal}
           onEdit={() => {
             if (primaryGoal) {
               handleEditGoal(primaryGoal.id);
@@ -452,11 +500,6 @@ export default function App() {
               eyebrow="Objetivos"
               title="Tus metas activas"
               description="Cada objetivo mantiene sus hitos y su progreso. Sin listas infinitas ni ruido."
-              actions={
-                <button type="button" className="button button--secondary" onClick={handleCreateGoal}>
-                  Crear objetivo
-                </button>
-              }
             >
               {sortedGoals.length > 0 ? (
                 <div className="goals-list">
@@ -483,9 +526,6 @@ export default function App() {
                   <p className="empty-state__copy">
                     Empieza por una meta clara, añádele hitos y Pizarra empezará a mostrarte progreso real.
                   </p>
-                  <button type="button" className="button button--primary" onClick={handleCreateGoal}>
-                    Crear mi primer objetivo
-                  </button>
                 </div>
               )}
             </SectionCard>
@@ -531,6 +571,15 @@ export default function App() {
             </SectionCard>
           </aside>
         </div>
+
+        <SectionCard
+          id="reportes"
+          eyebrow="Reportes"
+          title="Cómo estás avanzando"
+          description="Una lectura breve de tu progreso, tus cambios y los objetivos que se están quedando atrás."
+        >
+          <ReportsPanel data={data} />
+        </SectionCard>
       </main>
 
       <GoalFormModal

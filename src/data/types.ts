@@ -1,6 +1,7 @@
 export const APP_SCHEMA_VERSION = 1 as const;
 
 export type GoalStatus = 'pending' | 'in_progress' | 'completed';
+export type GoalTrackingMode = 'time' | 'actions';
 
 export type MissionState = 'active' | 'urgent' | 'overdue' | 'completed';
 
@@ -21,9 +22,20 @@ export type Goal = {
   title: string;
   description: string;
   deadline: string;
+  trackingMode: GoalTrackingMode;
+  completed: boolean;
   createdAt: string;
   updatedAt: string;
   milestones: Milestone[];
+};
+
+export type ActivityEvent = {
+  id: string;
+  type: 'goal_created' | 'goal_updated' | 'milestone_completed' | 'milestone_reopened' | 'goal_completed';
+  goalId: string;
+  goalTitle: string;
+  milestoneTitle?: string;
+  createdAt: string;
 };
 
 export type AppData = {
@@ -33,6 +45,7 @@ export type AppData = {
   primaryGoalId: string | null;
   settings: AppSettings;
   goals: Goal[];
+  activityLog: ActivityEvent[];
 };
 
 export type GoalDraftMilestone = {
@@ -47,6 +60,7 @@ export type GoalDraft = {
   title: string;
   description: string;
   deadline: string;
+  trackingMode: GoalTrackingMode;
   milestones: GoalDraftMilestone[];
 };
 

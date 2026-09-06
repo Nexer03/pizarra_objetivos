@@ -11,7 +11,6 @@ type MissionHeroProps = {
   goal: Goal | null;
   snapshot: MissionSnapshot | null;
   onEdit: () => void;
-  onCreate: () => void;
   onComplete: () => void;
 };
 
@@ -24,7 +23,7 @@ function metricLabel(value: string, label: string) {
   );
 }
 
-export function MissionHero({ goal, snapshot, onEdit, onCreate, onComplete }: MissionHeroProps) {
+export function MissionHero({ goal, snapshot, onEdit, onComplete }: MissionHeroProps) {
   if (!goal || !snapshot) {
     return (
       <section className="hero-card hero-card--empty">
@@ -35,11 +34,7 @@ export function MissionHero({ goal, snapshot, onEdit, onCreate, onComplete }: Mi
             Crea una misión clara para que Pizarra te recuerde cada día qué quieres conseguir y qué haces para lograrlo.
           </p>
         </div>
-        <div className="hero-card__actions">
-          <button type="button" className="button button--primary" onClick={onCreate}>
-            Crear misión
-          </button>
-        </div>
+        <p className="hero-card__hint">Usa “Crear objetivo” en la barra superior para definir tu primera meta.</p>
       </section>
     );
   }

@@ -6,9 +6,12 @@ La primera versión viene lista para usar con:
 
 - misión principal destacada
 - objetivos con hitos y progreso automático
+- metas medibles por tiempo o por acciones
+- reportes con progreso, histórico y objetivos vencidos
 - sección ligera de "Esta semana" derivada de los hitos pendientes
 - calendario de Google embebido por URL pública
-- persistencia local con `localStorage`
+- persistencia por usuario con Supabase
+- inicio de sesión con Google
 - exportación e importación de datos JSON
 - restablecimiento total con confirmación
 
@@ -64,17 +67,18 @@ npm run preview
 
 ## Arquitectura
 
-La aplicación usa una capa pequeña de dominio para que sea fácil cambiar el almacenamiento local por Supabase más adelante sin reescribir toda la UI.
+La aplicación usa una capa pequeña de dominio y un repositorio de Supabase para separar la persistencia de la UI.
 
 Piezas clave:
 
 - `src/data/types.ts`: tipos de datos
 - `src/data/defaults.ts`: datos iniciales y borradores
 - `src/data/domain.ts`: cálculos de progreso, fechas y utilidades
-- `src/data/repository.ts`: adaptador de persistencia local
+- `src/data/supabaseRepository.ts`: adaptador de persistencia por usuario
+- `src/data/supabase.ts`: cliente de Supabase
 - `src/data/importExport.ts`: normalización de importaciones JSON
 
-Hoy la app guarda todo en `localStorage` con una estructura versionada.
+Los datos se guardan en Supabase como JSON versionado por usuario. El SQL inicial está en `supabase/schema.sql`.
 
 ## Qué guarda
 
@@ -101,6 +105,13 @@ Si importas un JSON inválido, la app lo rechaza sin romperse.
 No hay OAuth ni API por ahora.
 
 Solo necesitas pegar una URL pública o de embed de Google Calendar. Si no hay URL configurada, la app muestra un placeholder bonito.
+
+## Configurar Supabase
+
+1. Ejecuta `supabase/schema.sql` en el SQL Editor del proyecto.
+2. Activa Google en `Authentication > Providers > Google`.
+3. Configura `http://localhost:5173` como URL local y añade la URL de Vercel cuando publiques.
+4. Copia `.env.example` como `.env.local` y completa las variables públicas del proyecto.
 
 ## Despliegue en Vercel
 

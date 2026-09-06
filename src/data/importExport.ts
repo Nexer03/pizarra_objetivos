@@ -1,6 +1,6 @@
 import { createId } from './domain';
 import { createDefaultAppData, DEFAULT_APP_NAME, PRIMARY_MISSION_DEADLINE } from './defaults';
-import { APP_SCHEMA_VERSION, type AppData, type AppSettings, type Goal, type Milestone } from './types';
+import { APP_SCHEMA_VERSION, type ActivityEvent, type AppData, type AppSettings, type Goal, type Milestone } from './types';
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
@@ -67,9 +67,32 @@ function normalizeGoal(value: unknown, nowIso: string): Goal | null {
     title,
     description: asString(value.description)?.trim() ?? '',
     deadline: normalizeDateString(value.deadline, PRIMARY_MISSION_DEADLINE),
+    trackingMode: value.trackingMode === 'time' ? 'time' : 'actions',
+    completed: value.completed === true,
     createdAt: normalizeTimestamp(value.createdAt, nowIso),
     updatedAt: normalizeTimestamp(value.updatedAt, nowIso),
     milestones,
+  };
+}
+
+function normalizeActivityEvent(value: unknown): ActivityEvent | null {
+  if (!isRecord(value) || !asString(value.goalId) || !asString(value.goalTitle) || !asString(value.createdAt)) {
+    return null;
+  }
+
+  const allowedTypes = ['goal_created', 'goal_updated', 'milestone_completed', 'milestone_reopened', 'goal_completed'];
+  const type = asString(value.type);
+  if (!type || !allowedTypes.includes(type)) {
+    return null;
+  }
+
+  return {
+    id: asString(value.id) ?? createId(),
+    type: type as ActivityEvent['type'],
+    goalId: value.goalId as string,
+    goalTitle: value.goalTitle as string,
+    milestoneTitle: asString(value.milestoneTitle) ?? undefined,
+    createdAt: value.createdAt as string,
   };
 }
 
@@ -107,6 +130,9 @@ export function normalizeImportedAppData(value: unknown): AppData | null {
         : goals[0]?.id ?? null,
     settings: normalizeSettings(value.settings),
     goals,
+    activityLog: Array.isArray(value.activityLog)
+      ? value.activityLog.map(normalizeActivityEvent).filter((event): event is ActivityEvent => event !== null)
+      : [],
   };
 
   return imported;

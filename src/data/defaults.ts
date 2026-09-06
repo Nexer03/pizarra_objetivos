@@ -22,6 +22,8 @@ function createPrimaryGoal(now: Date): Goal {
     title: PRIMARY_MISSION_TITLE,
     description: 'Construir una oferta clara, validar un servicio y cerrar la primera venta antes de la fecha límite.',
     deadline: PRIMARY_MISSION_DEADLINE,
+    trackingMode: 'actions',
+    completed: false,
     createdAt: timestamp,
     updatedAt: timestamp,
     milestones: createMilestones(
@@ -52,6 +54,7 @@ export function createDefaultAppData(now = new Date()): AppData {
       calendarUrl: '',
     },
     goals: [primaryGoal],
+    activityLog: [],
   };
 }
 
@@ -61,6 +64,7 @@ export function createBlankGoalDraft(now = new Date()): GoalDraft {
     title: '',
     description: '',
     deadline: formatDateInputValue(addDays(now, 30)),
+    trackingMode: 'actions',
     milestones: [
       {
         id: createId(),
@@ -78,6 +82,7 @@ export function createDraftFromGoal(goal: Goal): GoalDraft {
     title: goal.title,
     description: goal.description,
     deadline: goal.deadline,
+    trackingMode: goal.trackingMode,
     milestones:
       goal.milestones.length > 0
         ? goal.milestones.map((milestone) => ({

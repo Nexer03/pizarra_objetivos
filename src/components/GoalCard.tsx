@@ -44,6 +44,7 @@ export function GoalCard({
           </div>
           <div className="goal-card__meta">
             <span className={`status-text status-text--${statusTone}`}>{statusLabel}</span>
+            <span className="goal-card__tracking">{goal.trackingMode === 'time' ? 'Por tiempo' : 'Por acciones'}</span>
             <span className="pill pill--muted">{formatDateLong(goal.deadline)}</span>
             <span className="pill pill--muted">{formatDaysRemaining(daysRemaining)}</span>
           </div>
@@ -88,6 +89,7 @@ export function GoalCard({
                     onChange={(event) => onToggleMilestone(milestone.id, event.currentTarget.checked)}
                   />
                   <span className={milestone.completed ? 'is-completed' : undefined}>{milestone.title}</span>
+                  {milestone.completed ? <span className="completion-arrow" aria-hidden="true">↗</span> : null}
                 </label>
               </li>
             ))}
