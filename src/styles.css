@@ -70,6 +70,21 @@ select {
   font: inherit;
 }
 
+select,
+select option {
+  color-scheme: dark;
+}
+
+select option {
+  background: #0a0a0a;
+  color: var(--text);
+}
+
+select option:checked {
+  background: #262626;
+  color: var(--text);
+}
+
 button {
   cursor: pointer;
 }
@@ -956,9 +971,11 @@ textarea {
 
 .status-text {
   display: inline-block;
+  flex: 0 0 auto;
   color: var(--muted);
   font-size: 0.84rem;
   font-weight: 600;
+  white-space: nowrap;
   text-decoration: underline;
   text-decoration-thickness: 1px;
   text-underline-offset: 4px;
