@@ -212,6 +212,15 @@ textarea {
   margin-left: auto;
 }
 
+.account-email {
+  max-width: 190px;
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 0.78rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .notice {
   display: flex;
   align-items: center;
@@ -1260,6 +1269,10 @@ textarea {
 
   .topbar__actions .button {
     flex: 1 1 180px;
+  }
+
+  .account-email {
+    max-width: 140px;
   }
 
   .hero-card__footer,

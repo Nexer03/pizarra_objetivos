@@ -1,5 +1,5 @@
 import { createId } from './domain';
-import { createDefaultAppData, DEFAULT_APP_NAME, PRIMARY_MISSION_DEADLINE } from './defaults';
+import { DEFAULT_APP_NAME, PRIMARY_MISSION_DEADLINE } from './defaults';
 import { APP_SCHEMA_VERSION, type ActivityEvent, type AppData, type AppSettings, type Goal, type Milestone } from './types';
 
 function isRecord(value: unknown): value is Record<string, unknown> {

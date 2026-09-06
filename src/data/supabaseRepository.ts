@@ -1,4 +1,4 @@
-import { createDefaultAppData } from './defaults';
+import { createEmptyAppData } from './defaults';
 import { normalizeImportedAppData } from './importExport';
 import { supabase } from './supabase';
 import type { AppData } from './types';
@@ -42,5 +42,5 @@ export function createSupabaseRepository(userId: string): AppRepository {
 }
 
 export async function loadUserAppData(userId: string): Promise<AppData> {
-  return (await createSupabaseRepository(userId).load()) ?? createDefaultAppData();
+  return (await createSupabaseRepository(userId).load()) ?? createEmptyAppData();
 }

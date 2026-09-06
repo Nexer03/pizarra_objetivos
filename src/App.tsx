@@ -8,7 +8,7 @@ import { SettingsPanel } from './components/SettingsPanel';
 import { UpcomingActions } from './components/UpcomingActions';
 import { ReportsPanel } from './components/ReportsPanel';
 import { AuthScreen } from './components/AuthScreen';
-import { createBlankGoalDraft, createDefaultAppData, createDraftFromGoal, DEFAULT_APP_NAME } from './data/defaults';
+import { createBlankGoalDraft, createEmptyAppData, createDraftFromGoal, DEFAULT_APP_NAME } from './data/defaults';
 import {
   createId,
   formatDateInputValue,
@@ -151,9 +151,9 @@ export default function App() {
     let active = true;
     setIsLoading(true);
     void createSupabaseRepository(user.id).load().then((stored) => {
-      if (active) setData(stored ?? createDefaultAppData());
+      if (active) setData(stored ?? createEmptyAppData());
     }).catch(() => {
-      if (active) setData(createDefaultAppData());
+      if (active) setData(createEmptyAppData());
     }).finally(() => {
       if (active) setIsLoading(false);
     });
@@ -409,10 +409,14 @@ export default function App() {
 
     if (!user) return;
     void createSupabaseRepository(user.id).clear().then(() => {
-      setData(createDefaultAppData());
+      setData(createEmptyAppData());
     }).catch(() => showNotice('error', 'No se pudieron borrar los datos.'));
     setEditorDraft(null);
     showNotice('success', 'Datos restablecidos.');
+  };
+
+  const handleSignOut = () => {
+    void supabase.auth.signOut();
   };
 
   if (isAuthLoading) {
@@ -461,8 +465,12 @@ export default function App() {
         </nav>
 
         <div className="topbar__actions">
+          <span className="account-email" title={user.email ?? undefined}>{user.email}</span>
           <button type="button" className="button button--primary" onClick={handleCreateGoal}>
             Crear objetivo
+          </button>
+          <button type="button" className="button button--ghost" onClick={handleSignOut}>
+            Cerrar sesión
           </button>
         </div>
       </header>

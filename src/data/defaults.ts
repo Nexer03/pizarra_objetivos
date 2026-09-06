@@ -3,57 +3,21 @@ import type { AppData, Goal, GoalDraft, GoalDraftMilestone, Milestone } from './
 import { APP_SCHEMA_VERSION } from './types';
 
 export const DEFAULT_APP_NAME = 'Pizarra';
-export const PRIMARY_MISSION_TITLE = 'Conseguir mi primera venta por cuenta propia';
 export const PRIMARY_MISSION_DEADLINE = '2026-12-14';
 
-function createMilestones(titles: string[]): Milestone[] {
-  return titles.map((title) => ({
-    id: createId(),
-    title,
-    completed: false,
-    completedAt: null,
-  }));
-}
-
-function createPrimaryGoal(now: Date): Goal {
-  const timestamp = now.toISOString();
-  return {
-    id: createId(),
-    title: PRIMARY_MISSION_TITLE,
-    description: 'Construir una oferta clara, validar un servicio y cerrar la primera venta antes de la fecha límite.',
-    deadline: PRIMARY_MISSION_DEADLINE,
-    trackingMode: 'actions',
-    completed: false,
-    createdAt: timestamp,
-    updatedAt: timestamp,
-    milestones: createMilestones(
-      [
-        'Elegir el primer servicio',
-        'Preparar una demo',
-        'Crear lista de prospectos',
-        'Contactar al primer prospecto',
-        'Tener primera conversación comercial',
-        'Enviar primera propuesta',
-        'Cerrar primera venta',
-      ],
-    ),
-  };
-}
-
-export function createDefaultAppData(now = new Date()): AppData {
-  const primaryGoal = createPrimaryGoal(now);
+export function createEmptyAppData(now = new Date()): AppData {
   const timestamp = now.toISOString();
 
   return {
     version: APP_SCHEMA_VERSION,
     createdAt: timestamp,
     updatedAt: timestamp,
-    primaryGoalId: primaryGoal.id,
+    primaryGoalId: null,
     settings: {
       appName: DEFAULT_APP_NAME,
       calendarUrl: '',
     },
-    goals: [primaryGoal],
+    goals: [],
     activityLog: [],
   };
 }

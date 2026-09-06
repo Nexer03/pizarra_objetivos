@@ -24,14 +24,11 @@ La primera versión viene lista para usar con:
 
 La app está pensada para desplegarse fácilmente en Vercel como sitio estático.
 
-## Objetivo principal inicial
+## Tablero inicial
 
-La primera vez que se abre, Pizarra crea esta misión:
-
-- `Conseguir mi primera venta por cuenta propia`
-- fecha límite: `14/12/2026`
-
-También genera los hitos iniciales para ese objetivo.
+Cada usuario nuevo empieza con un tablero vacío. Desde `Crear objetivo` puede
+definir su primera meta y elegir si la medirá por tiempo o por hitos/acciones.
+No se comparten objetivos entre cuentas.
 
 ## Scripts
 
@@ -96,7 +93,7 @@ En la sección de configuración puedes:
 
 - exportar los datos actuales a JSON
 - importar un JSON compatible
-- restablecer la información local
+- restablecer el tablero completo
 
 Si importas un JSON inválido, la app lo rechaza sin romperse.
 
@@ -122,20 +119,20 @@ La app se despliega como sitio estático.
 
 No hay secretos ni credenciales hardcodeadas.
 
-## Base de datos futura
+## Persistencia y autenticación
 
-Vercel se encargará del frontend y del build, pero no es la base de datos. Para guardar los datos entre dispositivos, la opción recomendada es Supabase:
+La aplicación usa Supabase para autenticación con Google y para guardar los
+datos privados de cada usuario. Las políticas RLS del archivo
+`supabase/schema.sql` impiden que una cuenta lea o modifique los datos de otra.
+Vercel solo sirve el frontend y ejecuta el build.
 
-1. Crear un proyecto Supabase con PostgreSQL.
-2. Añadir autenticación por email o magic link para que los datos sean privados.
-3. Crear tablas para `goals` y `milestones`, relacionadas por `goal_id`.
-4. Activar Row Level Security para que cada usuario solo pueda leer y modificar sus propios datos.
-5. Implementar un `supabaseRepository` junto al `localStorageRepository` actual.
-6. Configurar en Vercel las variables `VITE_SUPABASE_URL` y `VITE_SUPABASE_ANON_KEY`.
+Configura en Vercel estas variables públicas del frontend:
 
-La UI no tendría que reescribirse: solo cambiaría la implementación del repositorio. La clave `anon` puede estar en el frontend si las políticas RLS están correctamente configuradas; nunca se debe exponer una service key.
+- `VITE_SUPABASE_URL`
+- `VITE_SUPABASE_PUBLISHABLE_KEY`
 
-Para esta primera versión se mantiene `localStorage`, porque permite validar el flujo sin añadir autenticación ni infraestructura. Cuando quieras sincronización entre dispositivos, el siguiente paso será migrar el repositorio a Supabase y añadir login.
+La clave publishable puede estar en el navegador; nunca se debe exponer una
+service key.
 
 ## Desarrollo
 
@@ -145,6 +142,6 @@ La UI es:
 - sobria
 - mobile-first
 - responsive real
-- con bordes sutiles y acento azul tipo VS Code
+- con bordes sutiles y una paleta monocromática inspirada en VS Code
 
 El foco visual siempre cae sobre la misión principal y sobre las acciones concretas que te acercan a ella.
