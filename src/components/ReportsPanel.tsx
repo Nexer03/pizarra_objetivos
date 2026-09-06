@@ -1,46 +1,30 @@
 import { differenceInDays, formatDateShort, getGoalMetrics, parseLocalDate } from '../data/domain';
-import type { AppData, ActivityEvent } from '../data/types';
+import type { AppData } from '../data/types';
 
 type ReportsPanelProps = {
   data: AppData;
 };
 
-function eventLabel(event: ActivityEvent): string {
-  switch (event.type) {
-    case 'milestone_completed':
-      return `Completaste “${event.milestoneTitle ?? 'un hito'}”`;
-    case 'milestone_reopened':
-      return `Reabriste “${event.milestoneTitle ?? 'un hito'}”`;
-    case 'goal_completed':
-      return 'Marcaste el objetivo como completado';
-    case 'goal_created':
-      return 'Creaste este objetivo';
-    default:
-      return 'Actualizaste este objetivo';
-  }
-}
-
 export function ReportsPanel({ data }: ReportsPanelProps) {
   const metrics = data.goals.map((goal) => ({ goal, metrics: getGoalMetrics(goal) }));
   const completedGoals = metrics.filter(({ metrics: item }) => item.status === 'completed').length;
+  const pendingGoals = data.goals.length - completedGoals;
   const averageProgress = metrics.length
     ? Math.round(metrics.reduce((total, item) => total + item.metrics.progressPercent, 0) / metrics.length)
     : 0;
   const overdueGoals = metrics.filter(({ goal, metrics: item }) => {
     return item.status !== 'completed' && differenceInDays(parseLocalDate(goal.deadline), new Date()) < 0;
   });
-  const events = [...data.activityLog].sort((left, right) => right.createdAt.localeCompare(left.createdAt)).slice(0, 8);
-
   return (
     <div className="reports-panel">
       <div className="reports-summary">
         <div><strong>{averageProgress}%</strong><span>progreso medio</span></div>
         <div><strong>{completedGoals}/{data.goals.length}</strong><span>objetivos completados</span></div>
-        <div><strong>{data.activityLog.length}</strong><span>cambios registrados</span></div>
+        <div><strong>{pendingGoals}</strong><span>objetivos pendientes</span></div>
       </div>
 
       <div className="reports-grid">
-          <div className="reports-block">
+        <div className="reports-block">
           <h3>Progreso por objetivo</h3>
           {metrics.length ? metrics.map(({ goal, metrics: item }) => (
             <div className="report-goal" key={goal.id}>
@@ -59,16 +43,6 @@ export function ReportsPanel({ data }: ReportsPanelProps) {
             </div>
           )) : <p className="report-muted">No hay objetivos vencidos. Sigue avanzando.</p>}
         </div>
-      </div>
-
-      <div className="reports-block reports-history">
-        <h3>Histórico reciente</h3>
-        {events.length ? events.map((event) => (
-          <div className="history-item" key={event.id}>
-            <span>{eventLabel(event)}</span>
-            <small>{event.goalTitle} · {formatDateShort(event.createdAt.slice(0, 10))}</small>
-          </div>
-        )) : <p className="report-muted">Aquí aparecerán tus avances y retrocesos.</p>}
       </div>
     </div>
   );

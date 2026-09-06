@@ -448,6 +448,7 @@ export default function App() {
   const sortedGoals = sortGoals(data.goals, data.primaryGoalId);
   const upcomingActions = getUpcomingActions(data, 4);
   const calendarUrl = data.settings.calendarUrl.trim();
+  const avatarUrl = user.user_metadata?.avatar_url ?? user.user_metadata?.picture ?? null;
 
   return (
     <div className="app-shell">
@@ -465,7 +466,15 @@ export default function App() {
         </nav>
 
         <div className="topbar__actions">
-          <span className="account-email" title={user.email ?? undefined}>{user.email}</span>
+          {avatarUrl ? (
+            <img
+              className="account-avatar"
+              src={avatarUrl}
+              alt="Foto de perfil de Google"
+              title={user.email ?? 'Cuenta de Google'}
+              referrerPolicy="no-referrer"
+            />
+          ) : null}
           <button type="button" className="button button--primary" onClick={handleCreateGoal}>
             Crear objetivo
           </button>
@@ -584,7 +593,7 @@ export default function App() {
           id="reportes"
           eyebrow="Reportes"
           title="Cómo estás avanzando"
-          description="Una lectura breve de tu progreso, tus cambios y los objetivos que se están quedando atrás."
+          description="Una lectura breve de tu progreso y de los objetivos que se están quedando atrás."
         >
           <ReportsPanel data={data} />
         </SectionCard>

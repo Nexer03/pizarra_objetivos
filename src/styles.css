@@ -212,13 +212,13 @@ textarea {
   margin-left: auto;
 }
 
-.account-email {
-  max-width: 190px;
-  overflow: hidden;
-  color: var(--muted);
-  font-size: 0.78rem;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+.account-avatar {
+  display: block;
+  width: 30px;
+  height: 30px;
+  object-fit: cover;
+  border: 1px solid var(--border-strong);
+  border-radius: 50%;
 }
 
 .notice {
@@ -570,8 +570,11 @@ textarea {
 }
 
 .goal-card__stat {
+  display: grid;
+  align-content: center;
+  min-height: 76px;
   padding: 14px;
-  border-radius: 16px;
+  border-radius: 3px;
   border: 1px solid var(--border);
   background: rgba(13, 17, 23, 0.6);
 }
@@ -1144,7 +1147,10 @@ textarea {
 
 .reports-summary > div {
   display: grid;
+  min-width: 0;
+  align-content: center;
   gap: 7px;
+  min-height: 82px;
   padding: 18px 16px;
   border-right: 1px solid var(--border);
 }
@@ -1159,8 +1165,7 @@ textarea {
 }
 
 .reports-summary span,
-.report-muted,
-.history-item small {
+.report-muted {
   color: var(--muted);
 }
 
@@ -1185,8 +1190,7 @@ textarea {
   gap: 8px;
 }
 
-.report-goal__header,
-.history-item {
+.report-goal__header {
   display: flex;
   justify-content: space-between;
   gap: 16px;
@@ -1205,16 +1209,6 @@ textarea {
 
 .report-warning span {
   color: var(--muted);
-}
-
-.history-item {
-  padding-bottom: 12px;
-  border-bottom: 1px solid var(--border);
-}
-
-.history-item:last-child {
-  padding-bottom: 0;
-  border-bottom: 0;
 }
 
 @media (max-width: 760px) {
@@ -1269,10 +1263,6 @@ textarea {
 
   .topbar__actions .button {
     flex: 1 1 180px;
-  }
-
-  .account-email {
-    max-width: 140px;
   }
 
   .hero-card__footer,
