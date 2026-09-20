@@ -15,6 +15,7 @@ function createEmptyMilestone(): GoalDraftMilestone {
     title: '',
     completed: false,
     completedAt: null,
+    scheduledDate: null,
   };
 }
 
@@ -213,8 +214,8 @@ export function GoalFormModal({ open, initialDraft, onClose, onSave }: GoalFormM
                 <span className="field__label">Hitos</span>
                 <p className="form-block__hint">
                   {draft.trackingMode === 'time'
-                    ? 'Opcional: añade acciones que acompañen el recorrido de esta meta.'
-                    : 'Marca el progreso desde la tarjeta o la vista de esta semana.'}
+                    ? 'Opcional: añade acciones y programa las que quieras ver en el calendario.'
+                    : 'Asigna una fecha a cada acción que quieras ver en el calendario y en Esta semana.'}
                 </p>
               </div>
               <button type="button" className="button button--secondary" onClick={addMilestone}>
@@ -239,6 +240,23 @@ export function GoalFormModal({ open, initialDraft, onClose, onSave }: GoalFormM
                     }}
                     placeholder="Ej. Crear una demo"
                   />
+                  <label className="draft-milestone__schedule">
+                    <span>Fecha</span>
+                    <input
+                      type="date"
+                      className="input"
+                      value={milestone.scheduledDate ?? ''}
+                      max={draft.deadline || undefined}
+                      onChange={(event) => {
+                        const value = event.currentTarget.value;
+                        updateMilestone(milestone.id, (current) => ({
+                          ...current,
+                          scheduledDate: value || null,
+                        }));
+                      }}
+                      aria-label={`Fecha del hito ${index + 1}`}
+                    />
+                  </label>
                   <button
                     type="button"
                     className="button button--ghost button--icon"

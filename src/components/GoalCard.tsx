@@ -3,6 +3,7 @@ import type { Goal } from '../data/types';
 import {
   differenceInDays,
   formatDateLong,
+  formatDateShort,
   formatDaysRemaining,
   parseLocalDate,
   getGoalMetrics,
@@ -108,7 +109,10 @@ export function GoalCard({
                       checked={milestone.completed}
                       onChange={(event) => onToggleMilestone(milestone.id, event.currentTarget.checked)}
                     />
-                    <span className={milestone.completed ? 'is-completed' : undefined}>{milestone.title}</span>
+                    <span className="milestone-item__content">
+                      <span className={milestone.completed ? 'is-completed' : undefined}>{milestone.title}</span>
+                      {milestone.scheduledDate ? <small>{formatDateShort(milestone.scheduledDate)}</small> : null}
+                    </span>
                     {milestone.completed ? <span className="completion-arrow" aria-hidden="true">↗</span> : null}
                   </label>
                 </li>

@@ -2,9 +2,7 @@ import { useRef } from 'react';
 
 type SettingsPanelProps = {
   appName: string;
-  calendarUrl: string;
   onChangeAppName: (value: string) => void;
-  onChangeCalendarUrl: (value: string) => void;
   onExport: () => void;
   onImportFile: (file: File) => void;
   onReset: () => void;
@@ -12,9 +10,7 @@ type SettingsPanelProps = {
 
 export function SettingsPanel({
   appName,
-  calendarUrl,
   onChangeAppName,
-  onChangeCalendarUrl,
   onExport,
   onImportFile,
   onReset,
@@ -35,19 +31,9 @@ export function SettingsPanel({
           />
         </label>
 
-        <label className="field">
-          <span className="field__label">URL de Google Calendar</span>
-          <input
-            type="url"
-            className="input"
-            value={calendarUrl}
-            onChange={(event) => onChangeCalendarUrl(event.currentTarget.value)}
-            placeholder="https://calendar.google.com/calendar/embed?src=..."
-          />
-        </label>
       </div>
 
-      <p className="settings-panel__hint">Los cambios se guardan automáticamente en este navegador.</p>
+      <p className="settings-panel__hint">Los cambios se guardan automáticamente en tu cuenta.</p>
 
       <div className="settings-panel__actions">
         <button type="button" className="button button--secondary" onClick={onExport}>

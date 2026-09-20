@@ -1,4 +1,4 @@
-export const APP_SCHEMA_VERSION = 1 as const;
+export const APP_SCHEMA_VERSION = 2 as const;
 
 export type GoalStatus = 'pending' | 'in_progress' | 'completed';
 export type GoalTrackingMode = 'time' | 'actions';
@@ -7,7 +7,6 @@ export type MissionState = 'active' | 'urgent' | 'overdue' | 'completed';
 
 export type AppSettings = {
   appName: string;
-  calendarUrl: string;
 };
 
 export type Milestone = {
@@ -15,6 +14,7 @@ export type Milestone = {
   title: string;
   completed: boolean;
   completedAt: string | null;
+  scheduledDate: string | null;
 };
 
 export type Goal = {
@@ -53,6 +53,7 @@ export type GoalDraftMilestone = {
   title: string;
   completed: boolean;
   completedAt: string | null;
+  scheduledDate: string | null;
 };
 
 export type GoalDraft = {
@@ -69,8 +70,12 @@ export type UpcomingAction = {
   milestoneId: string;
   goalTitle: string;
   milestoneTitle: string;
-  goalDeadline: string;
+  scheduledDate: string;
   isPrimary: boolean;
+};
+
+export type CalendarMilestone = UpcomingAction & {
+  completed: boolean;
 };
 
 export type GoalMetrics = {

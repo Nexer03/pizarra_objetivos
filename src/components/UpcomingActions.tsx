@@ -22,7 +22,7 @@ export function UpcomingActions({ items, onToggleMilestone }: UpcomingActionsPro
                 <div className="weekly-item__content">
                   <span className="weekly-item__title">{item.milestoneTitle}</span>
                   <span className="weekly-item__meta">
-                    {item.goalTitle} · {formatDateShort(item.goalDeadline)}
+                    {item.goalTitle} · {formatDateShort(item.scheduledDate)}
                     {item.isPrimary ? ' · misión principal' : ''}
                   </span>
                 </div>
@@ -32,9 +32,9 @@ export function UpcomingActions({ items, onToggleMilestone }: UpcomingActionsPro
         </ul>
       ) : (
         <div className="empty-state empty-state--soft">
-          <p className="empty-state__title">No hay acciones concretas todavía.</p>
+          <p className="empty-state__title">No hay acciones programadas esta semana.</p>
           <p className="empty-state__copy">
-            Añade hitos a tus objetivos y esta sección te enseñará qué mover primero esta semana.
+            Edita un objetivo y asigna fechas a los hitos que quieras mover esta semana.
           </p>
         </div>
       )}

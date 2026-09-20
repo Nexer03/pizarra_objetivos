@@ -15,7 +15,6 @@ export function createEmptyAppData(now = new Date()): AppData {
     primaryGoalId: null,
     settings: {
       appName: DEFAULT_APP_NAME,
-      calendarUrl: '',
     },
     goals: [],
     activityLog: [],
@@ -35,6 +34,7 @@ export function createBlankGoalDraft(now = new Date()): GoalDraft {
         title: '',
         completed: false,
         completedAt: null,
+        scheduledDate: null,
       },
     ],
   };
@@ -54,6 +54,7 @@ export function createDraftFromGoal(goal: Goal): GoalDraft {
             title: milestone.title,
             completed: milestone.completed,
             completedAt: milestone.completedAt,
+            scheduledDate: milestone.scheduledDate,
           }))
         : [
             {
@@ -61,6 +62,7 @@ export function createDraftFromGoal(goal: Goal): GoalDraft {
               title: '',
               completed: false,
               completedAt: null,
+              scheduledDate: null,
             },
           ],
   };
@@ -73,6 +75,7 @@ export function normalizeMilestoneDrafts(milestones: GoalDraftMilestone[]): Mile
       title: milestone.title.trim(),
       completed: milestone.completed,
       completedAt: milestone.completed ? milestone.completedAt ?? new Date().toISOString() : null,
+      scheduledDate: milestone.scheduledDate?.trim() || null,
     }))
     .filter((milestone) => milestone.title.length > 0);
 }

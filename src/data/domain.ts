@@ -1,4 +1,4 @@
-import type { AppData, Goal, GoalMetrics, GoalStatus, MissionSnapshot, UpcomingAction } from './types';
+import type { AppData, CalendarMilestone, Goal, GoalMetrics, GoalStatus, MissionSnapshot, UpcomingAction } from './types';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -198,30 +198,37 @@ export function getMissionStateTone(state: MissionSnapshot['state']): 'success' 
   }
 }
 
-export function getUpcomingActions(data: AppData, limit = 4): UpcomingAction[] {
-  const sortedGoals = sortGoals(data.goals, data.primaryGoalId);
-  const upcoming: UpcomingAction[] = [];
-
-  for (const goal of sortedGoals) {
-    for (const milestone of goal.milestones) {
-      if (milestone.completed) {
-        continue;
-      }
-
-      upcoming.push({
+export function getScheduledMilestones(data: AppData): CalendarMilestone[] {
+  return data.goals
+    .flatMap((goal) => goal.milestones
+      .filter((milestone) => milestone.scheduledDate)
+      .map((milestone) => ({
         goalId: goal.id,
         milestoneId: milestone.id,
         goalTitle: goal.title,
         milestoneTitle: milestone.title,
-        goalDeadline: goal.deadline,
+        scheduledDate: milestone.scheduledDate as string,
         isPrimary: goal.id === data.primaryGoalId,
-      });
+        completed: milestone.completed,
+      })))
+    .sort((left, right) => left.scheduledDate.localeCompare(right.scheduledDate));
+}
 
-      if (upcoming.length >= limit) {
-        return upcoming;
-      }
-    }
-  }
+export function getUpcomingActions(data: AppData, limit = 4, now = new Date()): UpcomingAction[] {
+  const today = toLocalDate(now);
+  const weekStart = addDays(today, -((today.getDay() + 6) % 7));
+  const weekEnd = addDays(weekStart, 6);
 
-  return upcoming;
+  return getScheduledMilestones(data)
+    .filter((item) => {
+      const scheduled = parseLocalDate(item.scheduledDate);
+      return !item.completed && scheduled >= weekStart && scheduled <= weekEnd;
+    })
+    .sort((left, right) => {
+      const byDate = left.scheduledDate.localeCompare(right.scheduledDate);
+      if (byDate !== 0) return byDate;
+      return Number(right.isPrimary) - Number(left.isPrimary);
+    })
+    .slice(0, limit)
+    .map(({ completed: _completed, ...item }) => item);
 }

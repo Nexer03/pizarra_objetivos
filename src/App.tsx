@@ -14,6 +14,7 @@ import {
   formatDateInputValue,
   getMissionSnapshot,
   getPrimaryGoal,
+  getScheduledMilestones,
   getUpcomingActions,
   sortGoals,
 } from './data/domain';
@@ -356,23 +357,6 @@ export default function App() {
     });
   };
 
-  const handleUpdateCalendarUrl = (calendarUrl: string) => {
-    setData((current) => {
-      if (!current) {
-        return current;
-      }
-
-      return {
-        ...current,
-        updatedAt: new Date().toISOString(),
-        settings: {
-          ...current.settings,
-          calendarUrl: calendarUrl.trim(),
-        },
-      };
-    });
-  };
-
   const handleExport = () => {
     if (!data) {
       return;
@@ -447,7 +431,7 @@ export default function App() {
   const missionSnapshot = primaryGoal ? getMissionSnapshot(primaryGoal) : null;
   const sortedGoals = sortGoals(data.goals, data.primaryGoalId);
   const upcomingActions = getUpcomingActions(data, 4);
-  const calendarUrl = data.settings.calendarUrl.trim();
+  const scheduledMilestones = getScheduledMilestones(data);
   const avatarUrl = user.user_metadata?.avatar_url ?? user.user_metadata?.picture ?? null;
 
   return (
@@ -551,7 +535,7 @@ export default function App() {
               id="semana"
               eyebrow="Esta semana"
               title="Acciones concretas"
-              description="Solo los siguientes pasos que realmente empujan tu misión."
+              description="Los hitos que programaste para la semana actual."
             >
               <UpcomingActions
                 items={upcomingActions}
@@ -564,23 +548,24 @@ export default function App() {
             <SectionCard
               id="calendario"
               eyebrow="Calendario"
-              title="Google Calendar"
-              description="Conecta un embed público para ver tus bloques de tiempo junto a tus objetivos."
+              title="Tus hitos programados"
+              description="Elige una fecha en cada hito y organiza aquí tus acciones concretas."
             >
-              <CalendarPanel calendarUrl={calendarUrl} />
+              <CalendarPanel
+                items={scheduledMilestones}
+                onToggleMilestone={handleToggleMilestone}
+              />
             </SectionCard>
 
             <SectionCard
               id="configuracion"
               eyebrow="Configuración"
               title="Ajustes ligeros"
-              description="Nombre, calendario, exportación, importación y restablecimiento."
+              description="Nombre, exportación, importación y restablecimiento."
             >
               <SettingsPanel
                 appName={data.settings.appName}
-                calendarUrl={data.settings.calendarUrl}
                 onChangeAppName={handleUpdateAppName}
-                onChangeCalendarUrl={handleUpdateCalendarUrl}
                 onExport={handleExport}
                 onImportFile={handleImportFile}
                 onReset={handleReset}

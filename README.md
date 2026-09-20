@@ -7,9 +7,9 @@ La primera versión viene lista para usar con:
 - misión principal destacada
 - objetivos con hitos y progreso automático
 - metas medibles por tiempo o por acciones
-- reportes con progreso, histórico y objetivos vencidos
-- sección ligera de "Esta semana" derivada de los hitos pendientes
-- calendario de Google embebido por URL pública
+- reportes con progreso y objetivos vencidos
+- sección ligera de "Esta semana" derivada de los hitos programados
+- calendario mensual propio conectado a las fechas de los hitos
 - persistencia por usuario con Supabase
 - inicio de sesión con Google
 - exportación e importación de datos JSON
@@ -80,10 +80,10 @@ Los datos se guardan en Supabase como JSON versionado por usuario. El SQL inicia
 ## Qué guarda
 
 - nombre de la app
-- URL de Google Calendar
 - objetivo principal
 - objetivos secundarios
 - hitos por objetivo
+- fecha programada de cada hito
 - estado de completado de cada hito
 - fechas de creación y actualización
 
@@ -97,11 +97,12 @@ En la sección de configuración puedes:
 
 Si importas un JSON inválido, la app lo rechaza sin romperse.
 
-## Google Calendar
+## Calendario
 
-No hay OAuth ni API por ahora.
-
-Solo necesitas pegar una URL pública o de embed de Google Calendar. Si no hay URL configurada, la app muestra un placeholder bonito.
+El calendario es parte de Pizarra y no requiere servicios externos. Al crear o
+editar un objetivo puedes asignar una fecha a cada hito. Los hitos fechados
+aparecen automáticamente en el calendario y los de la semana actual también se
+muestran en `Esta semana`.
 
 ## Configurar Supabase
 

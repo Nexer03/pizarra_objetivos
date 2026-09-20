@@ -40,11 +40,13 @@ function normalizeMilestone(value: unknown, nowIso: string): Milestone | null {
   }
 
   const completed = value.completed === true;
+  const scheduledDate = asString(value.scheduledDate);
   return {
     id: asString(value.id) ?? createId(),
     title,
     completed,
     completedAt: completed ? normalizeTimestamp(value.completedAt, nowIso) : null,
+    scheduledDate: scheduledDate && isValidDateInput(scheduledDate) ? scheduledDate : null,
   };
 }
 
@@ -100,13 +102,11 @@ function normalizeSettings(value: unknown): AppSettings {
   if (!isRecord(value)) {
     return {
       appName: DEFAULT_APP_NAME,
-      calendarUrl: '',
     };
   }
 
   return {
     appName: asTrimmedString(value.appName) ?? DEFAULT_APP_NAME,
-    calendarUrl: asString(value.calendarUrl)?.trim() ?? '',
   };
 }
 
