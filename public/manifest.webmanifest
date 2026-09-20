@@ -1,0 +1,50 @@
+{
+  "id": "/",
+  "name": "Pizarra",
+  "short_name": "Pizarra",
+  "description": "Dashboard personal de objetivos, hitos y acciones semanales.",
+  "lang": "es-MX",
+  "start_url": "/#inicio",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
+  "background_color": "#000000",
+  "theme_color": "#000000",
+  "icons": [
+    {
+      "src": "/icons/pizarra-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/pizarra-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/pizarra-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Misión principal",
+      "short_name": "Misión",
+      "url": "/#inicio"
+    },
+    {
+      "name": "Acciones de esta semana",
+      "short_name": "Esta semana",
+      "url": "/#semana"
+    },
+    {
+      "name": "Calendario de hitos",
+      "short_name": "Calendario",
+      "url": "/#calendario"
+    }
+  ]
+}

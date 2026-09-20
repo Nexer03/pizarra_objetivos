@@ -10,6 +10,7 @@ La primera versión viene lista para usar con:
 - reportes con progreso y objetivos vencidos
 - sección ligera de "Esta semana" derivada de los hitos programados
 - calendario mensual propio conectado a las fechas de los hitos
+- instalación como PWA en móvil y escritorio
 - persistencia por usuario con Supabase
 - inicio de sesión con Google
 
@@ -91,6 +92,17 @@ El calendario es parte de Pizarra y no requiere servicios externos. Al crear o
 editar un objetivo puedes asignar una fecha a cada hito. Los hitos fechados
 aparecen automáticamente en el calendario y los de la semana actual también se
 muestran en `Esta semana`.
+
+## Instalar como app
+
+Pizarra incluye manifest, iconos, service worker y accesos rápidos a la misión,
+la semana y el calendario. En producción funciona como una PWA `online-first`:
+la interfaz puede abrirse desde la pantalla de inicio, mientras que los datos se
+sincronizan con Supabase cuando hay conexión.
+
+- Android/Chrome: abre el menú del navegador y elige `Instalar aplicación`.
+- iPhone/Safari: usa `Compartir` y después `Añadir a pantalla de inicio`.
+- Escritorio/Chrome o Edge: usa el icono de instalación de la barra de dirección.
 
 ## Configurar Supabase
 
