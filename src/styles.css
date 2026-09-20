@@ -305,7 +305,6 @@ textarea {
 .hero-card,
 .section-card,
 .goal-card,
-.settings-panel,
 .empty-state,
 .loading-state {
   background: var(--surface);
@@ -1045,14 +1044,6 @@ textarea {
   line-height: 1.6;
 }
 
-.settings-panel {
-  padding: 0;
-  border-radius: 22px;
-  background: transparent;
-  border: 0;
-  box-shadow: none;
-}
-
 .field-grid {
   display: grid;
   gap: 14px;
@@ -1099,19 +1090,6 @@ textarea {
 .textarea {
   resize: vertical;
   min-height: 120px;
-}
-
-.settings-panel__hint {
-  margin: 14px 0 0;
-  color: var(--muted);
-  line-height: 1.6;
-}
-
-.settings-panel__actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 16px;
 }
 
 .button {
@@ -1610,14 +1588,12 @@ textarea {
   }
 
   .hero-card__actions,
-  .goal-card__actions,
-  .settings-panel__actions {
+  .goal-card__actions {
     width: 100%;
   }
 
   .hero-card__actions .button,
-  .goal-card__actions .button,
-  .settings-panel__actions .button {
+  .goal-card__actions .button {
     flex: 1 1 160px;
   }
 

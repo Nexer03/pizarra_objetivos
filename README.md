@@ -12,8 +12,6 @@ La primera versión viene lista para usar con:
 - calendario mensual propio conectado a las fechas de los hitos
 - persistencia por usuario con Supabase
 - inicio de sesión con Google
-- exportación e importación de datos JSON
-- restablecimiento total con confirmación
 
 ## Stack
 
@@ -86,16 +84,6 @@ Los datos se guardan en Supabase como JSON versionado por usuario. El SQL inicia
 - fecha programada de cada hito
 - estado de completado de cada hito
 - fechas de creación y actualización
-
-## Importar y exportar
-
-En la sección de configuración puedes:
-
-- exportar los datos actuales a JSON
-- importar un JSON compatible
-- restablecer el tablero completo
-
-Si importas un JSON inválido, la app lo rechaza sin romperse.
 
 ## Calendario
 

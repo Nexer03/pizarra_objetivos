@@ -4,21 +4,18 @@ import { GoalCard } from './components/GoalCard';
 import { GoalFormModal } from './components/GoalFormModal';
 import { MissionHero } from './components/MissionHero';
 import { SectionCard } from './components/SectionCard';
-import { SettingsPanel } from './components/SettingsPanel';
 import { UpcomingActions } from './components/UpcomingActions';
 import { ReportsPanel } from './components/ReportsPanel';
 import { AuthScreen } from './components/AuthScreen';
 import { createBlankGoalDraft, createEmptyAppData, createDraftFromGoal, DEFAULT_APP_NAME } from './data/defaults';
 import {
   createId,
-  formatDateInputValue,
   getMissionSnapshot,
   getPrimaryGoal,
   getScheduledMilestones,
   getUpcomingActions,
   sortGoals,
 } from './data/domain';
-import { normalizeImportedAppData } from './data/importExport';
 import { createSupabaseRepository } from './data/supabaseRepository';
 import { supabase } from './data/supabase';
 import { normalizeMilestoneDrafts } from './data/defaults';
@@ -100,21 +97,6 @@ function completeGoal(goal: Goal): Goal {
           },
     ),
   };
-}
-
-function createDownloadFile(data: AppData) {
-  const payload = JSON.stringify(data, null, 2);
-  const blob = new Blob([payload], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-
-  link.href = url;
-  link.download = `pizarra-${formatDateInputValue(new Date())}.json`;
-  link.style.display = 'none';
-  document.body.append(link);
-  link.click();
-  link.remove();
-  window.setTimeout(() => URL.revokeObjectURL(url), 0);
 }
 
 export default function App() {
@@ -340,65 +322,6 @@ export default function App() {
     });
   };
 
-  const handleUpdateAppName = (appName: string) => {
-    setData((current) => {
-      if (!current) {
-        return current;
-      }
-
-      return {
-        ...current,
-        updatedAt: new Date().toISOString(),
-        settings: {
-          ...current.settings,
-          appName,
-        },
-      };
-    });
-  };
-
-  const handleExport = () => {
-    if (!data) {
-      return;
-    }
-
-    createDownloadFile(data);
-    showNotice('success', 'JSON exportado.');
-  };
-
-  const handleImportFile = async (file: File) => {
-    try {
-      const text = await file.text();
-      const parsed: unknown = JSON.parse(text);
-      const imported = normalizeImportedAppData(parsed);
-
-      if (!imported) {
-        showNotice('error', 'El archivo no tiene un formato compatible.');
-        return;
-      }
-
-      setData(imported);
-      setEditorDraft(null);
-      showNotice('success', 'Datos importados correctamente.');
-    } catch {
-      showNotice('error', 'No se pudo leer el archivo JSON.');
-    }
-  };
-
-  const handleReset = () => {
-    const confirmed = window.confirm('Esto borrará tus datos de Pizarra en Supabase y volverá al estado inicial. ¿Continuar?');
-    if (!confirmed) {
-      return;
-    }
-
-    if (!user) return;
-    void createSupabaseRepository(user.id).clear().then(() => {
-      setData(createEmptyAppData());
-    }).catch(() => showNotice('error', 'No se pudieron borrar los datos.'));
-    setEditorDraft(null);
-    showNotice('success', 'Datos restablecidos.');
-  };
-
   const handleSignOut = () => {
     void supabase.auth.signOut();
   };
@@ -446,7 +369,6 @@ export default function App() {
           <a href="#semana">Esta semana</a>
           <a href="#calendario">Calendario</a>
           <a href="#reportes">Reportes</a>
-          <a href="#configuracion">Configuración</a>
         </nav>
 
         <div className="topbar__actions">
@@ -557,20 +479,6 @@ export default function App() {
               />
             </SectionCard>
 
-            <SectionCard
-              id="configuracion"
-              eyebrow="Configuración"
-              title="Ajustes ligeros"
-              description="Nombre, exportación, importación y restablecimiento."
-            >
-              <SettingsPanel
-                appName={data.settings.appName}
-                onChangeAppName={handleUpdateAppName}
-                onExport={handleExport}
-                onImportFile={handleImportFile}
-                onReset={handleReset}
-              />
-            </SectionCard>
           </aside>
         </div>
 
