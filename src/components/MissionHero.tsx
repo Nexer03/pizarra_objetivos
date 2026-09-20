@@ -50,7 +50,10 @@ export function MissionHero({ goal, snapshot, onEdit, onComplete }: MissionHeroP
           <p className="eyebrow">Misión principal</p>
           <div className="hero-card__title-row">
             <h1>{goal.title}</h1>
-            <span className={`status-text status-text--${stateTone}`}>{stateLabel}</span>
+            <span className={`mission-state mission-state--${stateTone}`}>
+              <span className="mission-state__dot" aria-hidden="true" />
+              Estado: {stateLabel}
+            </span>
           </div>
           <p className="hero-card__copy">{goal.description || 'Sin descripción todavía.'}</p>
           <div className="hero-card__meta">
